@@ -1,0 +1,59 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="8dp"
+    android:paddingRight="8dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+     tools:context=".layouts.MainActivity">
+
+    <com.dexafree.materialList.view.MaterialListView
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:id="@+id/listaProduse"
+        />
+
+    <com.getbase.floatingactionbutton.FloatingActionsMenu
+        android:id="@+id/floatingMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="bottom|end"
+        fab:fab_expandDirection="up"
+        fab:fab_addButtonPlusIconColor="@android:color/white"
+        fab:fab_labelStyle="@style/menu_labels_style"
+        fab:fab_size="normal">
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/sortTime2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_icon="@drawable/ic_keyboard_arrow_up_white_18dp"
+            fab:fab_size="mini"
+            fab:fab_title="Sorteaza dupa urgente"/>
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/sortTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_icon="@drawable/ic_keyboard_arrow_down_white_18dp"
+            fab:fab_size="mini"
+            fab:fab_title="Sorteaza alfabetic" />
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/floating_add_btn"
+            fab:fab_icon="@drawable/ic_payment_white_18dp"
+            fab:fab_size="mini"
+            fab:fab_title="@string/adauga_btn_tag"
+            />
+
+
+
+    </com.getbase.floatingactionbutton.FloatingActionsMenu>
+
+
+</RelativeLayout>

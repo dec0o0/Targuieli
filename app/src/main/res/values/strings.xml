@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Lista cumparaturi</string>
+
+    <string name="action_settings">Setari</string>
+    <string name="produs_tag">Numele produsului</string>
+    <string name="produs_input_tag">Introduceti aici numele produsului</string>
+    <string name="urgenta_tag">Urgenta</string>
+    <string name="prag_distanta_tag">Prag distanta</string>
+    <string name="arata_rezultatele_tag">Arata rezultatele</string>
+    <string name="adauga_btn_tag">Adauga</string>
+    <string name="adauga_activity">Adauga o noua intrare</string>
+
+</resources>
