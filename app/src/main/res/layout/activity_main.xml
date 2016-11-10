@@ -5,13 +5,13 @@
     android:paddingRight="8dp"
     android:paddingTop="8dp"
     android:paddingBottom="8dp"
-     tools:context=".layouts.MainActivity">
+     tools:context=".app.activities.MainActivity">
 
-    <com.dexafree.materialList.view.MaterialListView
-        android:layout_height="match_parent"
+    <android.support.v7.widget.RecyclerView
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:id="@+id/listaProduse"
-        />
+        android:layout_height="match_parent"
+        android:id="@+id/lista_preferinte"/>
 
     <com.getbase.floatingactionbutton.FloatingActionsMenu
         android:id="@+id/floatingMenu"
@@ -50,8 +50,6 @@
             fab:fab_size="mini"
             fab:fab_title="@string/adauga_btn_tag"
             />
-
-
 
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
 

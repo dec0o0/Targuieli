@@ -2,13 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.lista.cumparaturi">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".layouts.MainActivity"
+            android:name=".app.activities.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -16,13 +18,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".layouts.AdaugaProdusNou"
+        <activity
+            android:name=".app.activities.AdaugaProdusNou"
             android:label="@string/adauga_activity"
-            android:parentActivityName=".layouts.MainActivity">
+            android:parentActivityName=".app.activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.lista.cumparaturi.layouts.MainActivity" />
+                android:value=".app.activities.MainActivity" />
         </activity>
+        <activity android:name=".app.activities.Rezultate" />
+        <activity
+            android:name=".app.activities.SettingsActivity"
+            android:label="@string/title_activity_settings"></activity>
     </application>
 
 </manifest>

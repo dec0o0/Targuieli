@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/adauga_layout_padding"
-    tools:context="com.example.lista.cumparaturi.layouts.AdaugaProdusNou">
+    tools:context=".app.activities.AdaugaProdusNou">
 
     <com.getbase.floatingactionbutton.FloatingActionButton
         android:layout_width="wrap_content"
@@ -28,15 +28,18 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
 
-        <com.rengwuxian.materialedittext.MaterialEditText
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/adauga_tag_text_size"
+            android:text="@string/produs_tag"/>
+
+        <AutoCompleteTextView
+            android:layout_marginTop="2sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/produs_name_input"
             android:hint="@string/produs_input_tag"
-            app:met_floatingLabelTextSize="@dimen/adauga_tag_text_size"
-            app:met_floatingLabel="highlight"
-            app:met_floatingLabelText="@string/produs_tag"
-            app:met_singleLineEllipsis="true"/>
+            android:id="@+id/autocomplete"/>
 
         <Space
             android:layout_width="fill_parent"
@@ -82,14 +85,5 @@
             />
 
     </LinearLayout>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/adauga_btn"
-        android:text="adauga"
-        android:layout_above="@+id/arata_rezultatele_btn"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
 
 </RelativeLayout>
