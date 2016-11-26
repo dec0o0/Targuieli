@@ -1,4 +1,4 @@
-package com.example.lista.cumparaturi.app;
+package com.example.lista.cumparaturi.app.internals;
 
 import com.example.lista.cumparaturi.app.beans.Preferinta;
 

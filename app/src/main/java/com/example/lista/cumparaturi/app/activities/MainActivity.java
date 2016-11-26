@@ -1,6 +1,10 @@
 package com.example.lista.cumparaturi.app.activities;
 
 import android.app.ProgressDialog;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -16,27 +20,37 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.example.lista.cumparaturi.app.ContainerDate;
-import com.example.lista.cumparaturi.app.IPreferintaEventHandler;
-import com.example.lista.cumparaturi.app.PreferinteEventManger;
 import com.example.lista.cumparaturi.R;
-import com.example.lista.cumparaturi.app.RecyclerAdapter;
+import com.example.lista.cumparaturi.app.APIUtils;
+import com.example.lista.cumparaturi.app.ContainerDate;
+import com.example.lista.cumparaturi.app.internals.EventManager;
+import com.example.lista.cumparaturi.app.internals.IPreferintaEventHandler;
+import com.example.lista.cumparaturi.app.internals.IPreturiRefreshedEventHandler;
+import com.example.lista.cumparaturi.app.OffersJob;
 import com.example.lista.cumparaturi.app.beans.Preferinta;
+import com.example.lista.cumparaturi.app.internals.ListaPreferintaRecyclerAdapter;
+import com.example.lista.cumparaturi.app.stats.ProdInfo;
+import com.example.lista.cumparaturi.app.stats.StatsManager;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by macbookproritena on 11/5/16.
  */
 
-public class MainActivity extends ActionBarActivity implements IPreferintaEventHandler {
+public class MainActivity extends ActionBarActivity implements IPreferintaEventHandler, IPreturiRefreshedEventHandler {
 
     FloatingActionsMenu menu;
     RecyclerView recyclerView;
     RecyclerView.Adapter recycleAdapter;
     RecyclerView.LayoutManager recycleManager;
+    int jobId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,38 +72,56 @@ public class MainActivity extends ActionBarActivity implements IPreferintaEventH
 
         adaugaBtn.setOnClickListener(deployActivity(menu, AdaugaProdusNou.class));
 
-        PreferinteEventManger.manager().addListener(this);
+        EventManager.manager().addListener(this);
+        EventManager.manager().addRefreshListener(this);
 
         recyclerView = (RecyclerView) findViewById(R.id.lista_preferinte);
         recycleManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(recycleManager);
-        recycleAdapter = new RecyclerAdapter(this);
+        recycleAdapter = new ListaPreferintaRecyclerAdapter(this);
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(recycleAdapter);
 
         time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new AsyncDataLoad(recycleAdapter).execute(new Comparator<Preferinta>() {
+                Collections.sort(ContainerDate.instance().getPreferinte(), new Comparator<Preferinta>() {
                     @Override
                     public int compare(Preferinta preferinta, Preferinta t1) {
                         return preferinta.getProdus().getName().compareTo(t1.getProdus().getName());
                     }
                 });
+                recycleAdapter.notifyDataSetChanged();
             }
         });
 
         time2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new AsyncDataLoad(recycleAdapter).execute(new Comparator<Preferinta>() {
+                Collections.sort(ContainerDate.instance().getPreferinte(), new Comparator<Preferinta>() {
                     @Override
                     public int compare(Preferinta preferinta, Preferinta t1) {
-                        return preferinta.getUrgente().compareTo(t1.getUrgente());
+                        return Integer.compare(preferinta.getUrgente().getMidValue(), t1.getUrgente().getMidValue());
                     }
                 });
+                recycleAdapter.notifyDataSetChanged();
             }
         });
+
+        startOffersJob();
+    }
+
+    private void startOffersJob(){
+        ComponentName componentName = new ComponentName(this, OffersJob.class);
+        JobInfo.Builder builder = new JobInfo.Builder(jobId, componentName);
+        builder
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                .setRequiresDeviceIdle(false)
+                .setPeriodic(10000)
+                .setRequiresCharging(false);
+
+        JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        scheduler.schedule(builder.build());
     }
 
     @Override
@@ -122,12 +154,35 @@ public class MainActivity extends ActionBarActivity implements IPreferintaEventH
         if(id == R.id.settings){
             startActivity(new Intent(this, SettingsActivity.class));
         }
+        else if(id == R.id.refresh){
+            refreshAllTrends();
+        }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void preferintaNouaAdaugata(Preferinta p) {
         recycleAdapter.notifyItemInserted(ContainerDate.instance().getPreferinte().size() - 1);
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        ContainerDate.instance().saveAllToDB();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(jobId != Integer.MAX_VALUE)
+        ((JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE)).cancel(jobId);
+    }
+
+    @Override
+    public void onRefresh() {
+        recycleAdapter.notifyDataSetChanged();
+        StatsManager.instance().checkForOffers(this);
     }
 
     private class AsyncDataLoad extends AsyncTask<Comparator<Preferinta>, String, Void>{
@@ -158,19 +213,52 @@ public class MainActivity extends ActionBarActivity implements IPreferintaEventH
         @Override
         protected void onPostExecute(Void v){
             pDialog.dismiss();
-            if(adapter!=null)
-                adapter.notifyDataSetChanged();
+            if(adapter!=null) adapter.notifyDataSetChanged();
         }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        ContainerDate.instance().saveAllToDB();
+    private void refreshAllTrends(){
+        for(Preferinta p :ContainerDate.instance().getPreferinte())
+            new GetPriceAsync().execute(p);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    private void notifyAdapter(final RecyclerView.Adapter adapter, final int index){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.notifyItemChanged(index);
+            }
+        });
+    }
+
+    private class GetPriceAsync extends AsyncTask<Preferinta, Void, Void>{
+
+        List<Preferinta> prefs;
+        List<ProdInfo> infos;
+
+        @Override
+        protected Void doInBackground(Preferinta... voids) {
+            prefs = Arrays.asList(voids);
+            infos = new LinkedList<>();
+
+            for (Preferinta p : prefs)
+                infos.add(APIUtils.getPreturiProdus(p.getProdus()));
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v){
+            if(prefs.size() != infos.size()) return;
+
+            for(int i = 0; i < prefs.size(); ++i){
+                StatsManager.instance().addProdInfo(prefs.get(i).getProdus(), infos.get(i));
+
+                if(ContainerDate.instance().getPreferinte().contains(prefs.get(i)))
+                    notifyAdapter(recycleAdapter, ContainerDate.instance().getPreferinte().indexOf(prefs.get(i)));
+            }
+
+            StatsManager.instance().checkForOffers(MainActivity.this);
+        }
     }
 }

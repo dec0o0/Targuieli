@@ -16,7 +16,8 @@
         <FrameLayout
             android:layout_width="60dp"
             android:layout_height="match_parent"
-            android:background="@color/accentColor">
+            android:background="@color/accentColor"
+            android:id="@+id/deleteFrame">
 
             <android.support.v7.widget.AppCompatImageView
                 android:layout_width="wrap_content"
@@ -29,7 +30,8 @@
         <FrameLayout
             android:layout_width="60dp"
             android:layout_height="match_parent"
-            android:background="@color/yellow_low">
+            android:background="@color/yellow_low"
+            android:id="@+id/editFrame">
 
             <android.support.v7.widget.AppCompatImageView
                 android:layout_width="wrap_content"

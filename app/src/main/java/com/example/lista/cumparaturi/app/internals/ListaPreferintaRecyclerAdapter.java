@@ -1,9 +1,12 @@
-package com.example.lista.cumparaturi.app;
+package com.example.lista.cumparaturi.app.internals;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -11,16 +14,23 @@ import com.asadmshah.materiallistitem.AvatarImageView;
 import com.asadmshah.materiallistitem.TwoLineAvatarWithTextAndIconView;
 import com.daimajia.swipe.SwipeLayout;
 import com.example.lista.cumparaturi.R;
+import com.example.lista.cumparaturi.app.ContainerDate;
+import com.example.lista.cumparaturi.app.activities.AdaugaProdusNou;
+import com.example.lista.cumparaturi.app.activities.VizualizarePreturiActivity;
 import com.example.lista.cumparaturi.app.beans.Preferinta;
+import com.example.lista.cumparaturi.app.beans.Trend;
+import com.example.lista.cumparaturi.app.stats.StatsManager;
+
+import java.util.List;
 
 /**
  * Created by macbookproritena on 11/7/16.
  */
 
-public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.PreferintaViewHolder> {
+public class ListaPreferintaRecyclerAdapter extends RecyclerView.Adapter<ListaPreferintaRecyclerAdapter.PreferintaViewHolder> {
     private final Context context;
 
-    public RecyclerAdapter(Context context) {
+    public ListaPreferintaRecyclerAdapter(Context context) {
         this.context = context;
     }
 
@@ -33,18 +43,46 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Prefer
         view.addDrag(SwipeLayout.DragEdge.Left, view.findViewById(R.id.bottom_wrapper));
         view.addDrag(SwipeLayout.DragEdge.Right, null);
         view.addSwipeListener(newListener());
-
         return new PreferintaViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(PreferintaViewHolder holder, int position) {
-        Preferinta p = ContainerDate.instance().getPreferinte().get(position);
+    public void onBindViewHolder(final PreferintaViewHolder holder, final int position) {
+        final Preferinta p = ContainerDate.instance().getPreferinte().get(position);
         holder.titleView.setText(p.getProdus().getName());
-        holder.subtitleView.setText("Cel mai bun pret: 22 LEI");
+        holder.subtitleView.setText("Cel mai bun pret: " + StatsManager.instance().bestPrice(p.getProdus()));
         holder.iconView.setImageResource(R.drawable.ic_hourglass_full_white_24dp);
         holder.iconView.setColorFilter(context.getResources().getColor(p.getUrgente().getColor()));
-        holder.avatarView.setImageResource(R.drawable.ic_trending_down_black_24dp);
+        holder.avatarView.setImageResource(Trend.getByVal(StatsManager.instance().getGeneralProdSlope(p.getProdus())).getResource());
+
+        holder.deleteLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                List<Preferinta> preferinte = ContainerDate.instance().getPreferinte();
+                preferinte.remove(holder.getAdapterPosition());
+                notifyItemRemoved(holder.getAdapterPosition());
+            }
+        });
+
+        holder.editLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, AdaugaProdusNou.class);
+                intent.putExtra(AdaugaProdusNou.PREFERINTA_EXTRA_TAG, holder.getAdapterPosition());
+                context.startActivity(intent);
+                notifyItemChanged(holder.getAdapterPosition());
+            }
+        });
+
+        holder.view.setOnDoubleClickListener(new SwipeLayout.DoubleClickListener() {
+            @Override
+            public void onDoubleClick(SwipeLayout layout, boolean surface) {
+                Intent intent = new Intent(context, VizualizarePreturiActivity.class);
+                intent.putExtra(AdaugaProdusNou.PREFERINTA_EXTRA_TAG, holder.getAdapterPosition());
+                context.startActivity(intent);
+                notifyItemChanged(holder.getAdapterPosition());
+            }
+        });
     }
 
     @Override
@@ -58,6 +96,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Prefer
         TextView titleView, subtitleView;
         ImageView iconView;
         AvatarImageView avatarView;
+        FrameLayout deleteLayout, editLayout;
 
         public PreferintaViewHolder(SwipeLayout itemView) {
             super(itemView);
@@ -67,6 +106,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Prefer
             subtitleView = lineView.getSubtitleView();
             iconView = lineView.getIconImageView();
             avatarView = lineView.getAvatarImageView();
+            deleteLayout = (FrameLayout) view.findViewById(R.id.deleteFrame);
+            editLayout = (FrameLayout) view.findViewById(R.id.editFrame);
         }
     }
 

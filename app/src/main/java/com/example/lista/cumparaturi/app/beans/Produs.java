@@ -1,6 +1,6 @@
 package com.example.lista.cumparaturi.app.beans;
 
-import static com.example.lista.cumparaturi.app.Utils.*;
+import static com.example.lista.cumparaturi.app.APIUtils.*;
 
 /**
  * Created by macbookproritena on 11/5/16.

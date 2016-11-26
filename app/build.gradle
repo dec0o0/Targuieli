@@ -28,4 +28,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:25.0.0'
     compile 'com.android.support:support-v4:25.0.0'
     compile 'com.daimajia.swipelayout:library:1.2.0@aar'
+    compile 'org.apache.commons:commons-math3:3.6.1'
+    compile 'com.github.PhilJay:MPAndroidChart:v3.0.1'
+    compile 'io.apptik.widget:multiselectspinner:1.0.12'
 }

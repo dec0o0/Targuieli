@@ -26,10 +26,26 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".app.activities.MainActivity" />
         </activity>
-        <activity android:name=".app.activities.Rezultate" />
+        <activity android:name=".app.activities.VizualizarePreturiActivity"
+            android:label="Vizualizare preturi"
+            android:parentActivityName=".app.activities.MainActivity">
+                <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".app.activities.MainActivity" />
+        </activity>
         <activity
             android:name=".app.activities.SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".app.activities.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".app.activities.MainActivity"/>
+        </activity>
+
+        <service android:name=".app.OffersJob"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="true"/>
+
     </application>
 
 </manifest>

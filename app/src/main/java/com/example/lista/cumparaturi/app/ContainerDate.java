@@ -6,6 +6,7 @@ import com.example.lista.cumparaturi.app.beans.Preferinta;
 import com.example.lista.cumparaturi.app.beans.Produs;
 import com.example.lista.cumparaturi.app.beans.Urgente;
 import com.example.lista.cumparaturi.app.db.DBDatasource;
+import com.example.lista.cumparaturi.app.internals.EventManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,20 +16,16 @@ import java.util.List;
  */
 
 public final class ContainerDate {
-    private boolean readFromDb, dummydataloaded = false;
-    private List<Produs> produse;
-    private List<Preferinta> preferinte;
-    private DBDatasource datasource;
-
     private static ContainerDate instance;
-    private final int INIT_SIZE = 10;
 
-    private ContainerDate(){
-        this.produse = new ArrayList<>(INIT_SIZE);
-        this.preferinte = new ArrayList<>(INIT_SIZE);
-        this.readFromDb = false;
-        this.datasource = null;
-    }
+    private final int INIT_SIZE = 10;
+    private final List<Produs> produse = new ArrayList<>(INIT_SIZE);
+    private final List<Preferinta> preferinte = new ArrayList<>(INIT_SIZE);
+
+    private boolean readFromDb =false, dummydataloaded = false;
+    private DBDatasource datasource = null;
+
+    private ContainerDate(){}
 
     public static ContainerDate instance(){
         if(instance == null){
@@ -45,6 +42,15 @@ public final class ContainerDate {
         return preferinte;
     }
 
+    public Preferinta getPrefByProd(Produs p){
+        for(Preferinta preferinta : getPreferinte()){
+            if (preferinta.getProdus().getName().equals(p.getName())){
+                return preferinta;
+            }
+        }
+        return null;
+    }
+
     public void addProdus(Produs s){
         if(!produse.contains(s)) {
             produse.add(s);
@@ -54,7 +60,7 @@ public final class ContainerDate {
     public void addPreferinta(Preferinta p){
         if(!preferinte.contains(p)) {
             preferinte.add(p);
-            PreferinteEventManger.manager().triggerAddedEvent(p);
+            EventManager.manager().triggerAddedEvent(p);
         }
     }
 
@@ -84,13 +90,13 @@ public final class ContainerDate {
     public void loadDummyData(){
         if(dummydataloaded) return;;
         Produs a, b, c;
-        a = new Produs(123, "Philips 332W", "Masina de spalat speciala");
-        b = new Produs(132, "Vw Golf 1.9TDI", "Masina speciala Volkwagen.");
-        c = new Produs(312, "Microsoft E332", "Mouse pt laptopul personal.");
+        a = new Produs(17, "Philips 332W", "Masina de spalat speciala");
+        b = new Produs(15, "Vw Golf 1.9TDI", "Masina speciala Volkwagen.");
+        c = new Produs(17, "Microsoft E332", "Mouse pt laptopul personal.");
         Preferinta aa, bb, cc;
-        aa = new Preferinta(a, 300, Urgente.FOARTE);
-        bb = new Preferinta(b, 100, Urgente.PUTIN);
-        cc = new Preferinta(c, 332, Urgente.DELOC);
+        aa = new Preferinta(a, 30, Urgente.FOARTE);
+        bb = new Preferinta(b, 14, Urgente.PUTIN);
+        cc = new Preferinta(c, 44, Urgente.DELOC);
 
         produse.add(a);
         produse.add(b);

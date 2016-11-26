@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         app:fab_icon="@drawable/ic_payment_white_18dp"
         app:fab_size="normal"
-        app:fab_title="@string/arata_rezultatele_tag"
+        app:fab_title="Save"
         android:id="@+id/arata_rezultatele_btn"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
@@ -40,6 +40,22 @@
             android:layout_height="wrap_content"
             android:hint="@string/produs_input_tag"
             android:id="@+id/autocomplete"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/adauga_tag_text_size"
+            android:text="@string/descriere"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/descriere_input"
+            android:enabled="false"
+            android:gravity="top|left"
+            android:lines="3"
+            android:textSize="18sp"
+            android:inputType="textMultiLine"/>
 
         <Space
             android:layout_width="fill_parent"

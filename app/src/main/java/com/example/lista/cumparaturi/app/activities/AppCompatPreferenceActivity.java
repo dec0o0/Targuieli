@@ -1,4 +1,4 @@
-package com.example.lista.cumparaturi.app;
+package com.example.lista.cumparaturi.app.activities;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

@@ -1,16 +1,24 @@
 package com.example.lista.cumparaturi.app;
 
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.JsonReader;
 import android.util.Pair;
 
 import com.example.lista.cumparaturi.app.beans.Produs;
+import com.example.lista.cumparaturi.app.stats.Locatie;
+import com.example.lista.cumparaturi.app.stats.PriceStat;
+import com.example.lista.cumparaturi.app.stats.ProdInfo;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,8 +26,8 @@ import java.util.List;
  * Created by macbookproritena on 11/5/16.
  */
 
-public class Utils {
-    private Utils(){;}
+public class APIUtils {
+    private APIUtils(){;}
 
     public static final String preventNullString = "";
     public static final int defaultProdusId = -1;
@@ -32,7 +40,7 @@ public class Utils {
     private static final String PROD_DESC_TAG = "ProductDescription";
     private static final String PROD_ID_TAG = "ProductId";
 
-    public static List<Produs> getRemoteProducts(String prodName){
+    @NonNull public static List<Produs> getRemoteProducts(String prodName){
 
         List<Produs> produses = new LinkedList<>();
 
@@ -44,6 +52,7 @@ public class Utils {
 
             //reader = new FetchFromRemote().execute().get();
 
+            if (reader == null) return null;
             reader.beginArray();
             while(reader.hasNext()){
                 produses.add(readProdus(reader));
@@ -55,6 +64,89 @@ public class Utils {
         }
 
         return produses;
+    }
+
+    public static ProdInfo getPreturiProdus(Produs p){
+        JsonReader reader = null;
+        ProdInfo prodInfo = new ProdInfo(p);
+
+        try{
+            reader = getFromRemote(
+                    new Pair<String, String>(ACTION_TAG, "GetProductPricesGeneral"),
+                    new Pair<String, String>(PROD_ID_TAG, "17"));
+
+            if (reader == null) return null;
+            reader.beginArray();
+            while(reader.hasNext()){
+                prodInfo.addLocatie(readLocatie(reader));
+            }
+            reader.endArray();
+            reader.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return prodInfo;
+    }
+
+    private static Locatie readLocatie(JsonReader reader) throws IOException, ParseException {
+        String name = null, adresa = null;
+        List<PriceStat> stats = new ArrayList<>();
+
+        reader.beginObject();
+        while(reader.hasNext()){
+            String nextName = reader.nextName();
+            if(nextName.equalsIgnoreCase("LocationName")){
+                name = reader.nextString();
+            }
+            else if (nextName.equalsIgnoreCase("LocationAdress")){
+                adresa = reader.nextString();
+            }
+            else if (nextName.equalsIgnoreCase("PriceAndStock")){
+                reader.beginArray();
+                while(reader.hasNext()){
+                    stats.add(readStat(reader));
+                }
+                reader.endArray();
+            }
+            else
+                reader.skipValue();
+        }
+        reader.endObject();
+
+        Locatie l = new Locatie(adresa, name);
+        for(PriceStat p : stats)
+            l.addPriceStat(p);
+        return l;
+    }
+
+    private static PriceStat readStat(JsonReader reader) throws IOException, ParseException {
+        float pret = 0;
+        int stock = 100;
+        Date date = new Date();
+
+        reader.beginObject();
+        while(reader.hasNext()){
+            String next = reader.nextName();
+            if(next.equalsIgnoreCase("Price")){
+                pret = (float) reader.nextDouble();
+            }
+            else if(next.equalsIgnoreCase("Stock")){
+                stock = reader.nextInt();
+            }
+            else if(next.equalsIgnoreCase("PriceStockEnterDate")){
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                date = format.parse(reader.nextString());
+            }
+            else
+                reader.skipValue();
+        }
+        reader.endObject();
+
+        return new PriceStat(pret, stock, date);
     }
 
     private static Produs readProdus(JsonReader reader) throws IOException {
