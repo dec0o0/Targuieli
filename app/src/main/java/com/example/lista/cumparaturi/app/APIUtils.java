@@ -1,5 +1,7 @@
 package com.example.lista.cumparaturi.app;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.JsonReader;
@@ -49,8 +51,6 @@ public class APIUtils {
             reader = getFromRemote(
                     new Pair<String, String>(ACTION_TAG, ACTION_VAL),
                     new Pair<String, String>(PRODUCT_NAME_TAG, prodName));
-
-            //reader = new FetchFromRemote().execute().get();
 
             if (reader == null) return null;
             reader.beginArray();
@@ -216,5 +216,9 @@ public class APIUtils {
         protected final JsonReader doInBackground(Pair<String, String>... nameValuePairs) {
             return getFromRemote(nameValuePairs);
         }
+    }
+
+    public static boolean isInternetConnected(Context context){
+        return ((ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo() != null;
     }
 }

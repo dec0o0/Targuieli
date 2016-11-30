@@ -50,8 +50,8 @@ public class ListaPreferintaRecyclerAdapter extends RecyclerView.Adapter<ListaPr
     public void onBindViewHolder(final PreferintaViewHolder holder, final int position) {
         final Preferinta p = ContainerDate.instance().getPreferinte().get(position);
         holder.titleView.setText(p.getProdus().getName());
-        holder.subtitleView.setText("Cel mai bun pret: " + StatsManager.instance().bestPrice(p.getProdus()));
-        holder.iconView.setImageResource(R.drawable.ic_hourglass_full_white_24dp);
+        holder.subtitleView.setText("Cel mai bun pret: " + StatsManager.instance().lowestPrice(p.getProdus(), context));
+        holder.iconView.setImageResource(R.drawable.ic_hourglass_empty_white_24dp);
         holder.iconView.setColorFilter(context.getResources().getColor(p.getUrgente().getColor()));
         holder.avatarView.setImageResource(Trend.getByVal(StatsManager.instance().getGeneralProdSlope(p.getProdus())).getResource());
 

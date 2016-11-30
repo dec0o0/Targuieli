@@ -5,8 +5,8 @@ import org.apache.commons.math3.stat.regression.SimpleRegression;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 /**
  * Created by macbookproritena on 11/21/16.
@@ -31,7 +31,7 @@ public class Locatie {
         Collections.sort(stats, new Comparator<PriceStat>() {
             @Override
             public int compare(PriceStat priceStat, PriceStat t1) {
-                return priceStat.getData().compareTo(t1.getData());
+                return t1.getData().compareTo(priceStat.getData());
             }
         });
         return stats.size() > MAX_DATA ? stats.subList(0, MAX_DATA) : stats;
@@ -53,9 +53,9 @@ public class Locatie {
         List<PriceStat> stats = getSortedStats();
 
         SimpleRegression regression = new SimpleRegression(true);
-        Iterator<PriceStat> iterator = stats.iterator();
-        for(int i = 1; iterator.hasNext(); ++i){
-            regression.addData(i, iterator.next().getPrice());
+        ListIterator<PriceStat> iterator = stats.listIterator(stats.size());
+        for(int i = 1; iterator.hasPrevious(); ++i){
+            regression.addData(i, iterator.previous().getPrice());
         }
 
         return regression;

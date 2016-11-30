@@ -93,6 +93,7 @@ public final class ContainerDate {
         a = new Produs(17, "Philips 332W", "Masina de spalat speciala");
         b = new Produs(15, "Vw Golf 1.9TDI", "Masina speciala Volkwagen.");
         c = new Produs(17, "Microsoft E332", "Mouse pt laptopul personal.");
+
         Preferinta aa, bb, cc;
         aa = new Preferinta(a, 30, Urgente.FOARTE);
         bb = new Preferinta(b, 14, Urgente.PUTIN);

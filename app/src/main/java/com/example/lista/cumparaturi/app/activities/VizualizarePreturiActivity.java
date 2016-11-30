@@ -1,5 +1,6 @@
 package com.example.lista.cumparaturi.app.activities;
 
+import android.app.NotificationManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -18,15 +19,17 @@ import com.example.lista.cumparaturi.app.stats.PriceStat;
 import com.example.lista.cumparaturi.app.stats.ProdInfo;
 import com.example.lista.cumparaturi.app.stats.StatsManager;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.IValueFormatter;
+import com.github.mikephil.charting.formatter.LargeValueFormatter;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -69,6 +72,9 @@ public class VizualizarePreturiActivity extends AppCompatActivity {
 
             prodName.setText(preferinta.getProdus().getName());
             descView.setText(preferinta.getProdus().getDesc());
+
+            NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            manager.cancel(preferinta.getProdus().getName(), 0);
         }
 
         chart = (LineChart) findViewById(R.id.line_chart);
@@ -77,12 +83,28 @@ public class VizualizarePreturiActivity extends AppCompatActivity {
         spinner.setItems(locatii);
         spinner.setSelectAll(true);
         addToChart(locatii);
+
         chart.setNoDataText("No data available");
+        chart.getDescription().setText("Evolutia preturilor in timp");
+
         chart.getXAxis().setDrawLabels(false);
         chart.getXAxis().setDrawGridLines(false);
         chart.getLegend().setTextSize(14f);
         chart.getLegend().setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
-        chart.getLegend().setXEntrySpace(5f);
+        chart.getLegend().setXEntrySpace(1f);
+        chart.getLegend().setDirection(Legend.LegendDirection.LEFT_TO_RIGHT);
+
+        chart.setHighlightPerDragEnabled(true);
+        chart.setHighlightPerTapEnabled(true);
+
+        //chart.getAxisRight().setEnabled(false);
+        chart.getAxisLeft().setEnabled(false);
+
+        LimitLine llXAxis = new LimitLine(10f, "Index 10");
+        llXAxis.setLineWidth(4f);
+        llXAxis.enableDashedLine(10f, 10f, 0f);
+        llXAxis.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
+        llXAxis.setTextSize(10f);
 
         spinner.setAllCheckedText("Toate");
         spinner.setAllUncheckedText("Nici una");
@@ -110,9 +132,14 @@ public class VizualizarePreturiActivity extends AppCompatActivity {
                 data.addDataSet(locatieSets.get(l));
             }
         }
-        data.setValueFormatter(new DateValueFormatter());
+        ValueFormater valueFormater = new ValueFormater();
+
+        chart.getAxisLeft().setValueFormatter(valueFormater);
+        data.setValueTextSize(11);
+        data.setValueFormatter(valueFormater);
+
         chart.setData(data);
-        chart.invalidate();
+        chart.animateX(1000);
     }
 
     private void addToChart(boolean[] locatiiBools){
@@ -140,7 +167,9 @@ public class VizualizarePreturiActivity extends AppCompatActivity {
         for(Locatie l : info.getLocatieList()){
             List<Entry> entries = new LinkedList<>();
             float x = 0;
-            List<PriceStat> stats = l.getSortedStats().subList(0, min);
+            List<PriceStat> stats = new ArrayList<>(l.getSortedStats()).subList(0, min);
+            Collections.reverse(stats);
+
             for(PriceStat price : stats){
                 long convert = TimeUnit.DAYS.convert(now.getTime() - price.getData().getTime(), TimeUnit.MILLISECONDS);
                 entries.add(new Entry(++x, price.getPrice()));
@@ -148,18 +177,25 @@ public class VizualizarePreturiActivity extends AppCompatActivity {
             LineDataSet dataSet = new LineDataSet(entries, l.getCompName());
             dataSet.setColor(Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
             dataSet.setCircleColor(dataSet.getColor());
-            dataSet.setMode(LineDataSet.Mode.STEPPED);
+            dataSet.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
+            dataSet.setCircleRadius(6);
+
             locatieSets.put(l.getAdresa(), dataSet);
         }
     }
 
-    private static class DateValueFormatter implements IValueFormatter{
+    private static class ValueFormater extends LargeValueFormatter{
+        private final String suffix = " Lei";
+
         @Override
         public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
-            Calendar nowc = Calendar.getInstance();
-            nowc.add(Calendar.DATE, (-1) * Math.round(value));
-            return (nowc.get(Calendar.MONTH) + 1) + "/"
-                    + nowc.get(Calendar.DATE);
+            return super.getFormattedValue(value, entry, dataSetIndex, viewPortHandler) + suffix;
+        }
+
+        // IAxisValueFormatter
+        @Override
+        public String getFormattedValue(float value, AxisBase axis) {
+            return super.getFormattedValue(value, axis) + suffix;
         }
     }
 

@@ -1,6 +1,8 @@
 package com.example.lista.cumparaturi.app.activities;
 
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.app.TaskStackBuilder;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
@@ -23,11 +25,11 @@ import android.view.View;
 import com.example.lista.cumparaturi.R;
 import com.example.lista.cumparaturi.app.APIUtils;
 import com.example.lista.cumparaturi.app.ContainerDate;
+import com.example.lista.cumparaturi.app.OffersJob;
+import com.example.lista.cumparaturi.app.beans.Preferinta;
 import com.example.lista.cumparaturi.app.internals.EventManager;
 import com.example.lista.cumparaturi.app.internals.IPreferintaEventHandler;
 import com.example.lista.cumparaturi.app.internals.IPreturiRefreshedEventHandler;
-import com.example.lista.cumparaturi.app.OffersJob;
-import com.example.lista.cumparaturi.app.beans.Preferinta;
 import com.example.lista.cumparaturi.app.internals.ListaPreferintaRecyclerAdapter;
 import com.example.lista.cumparaturi.app.stats.ProdInfo;
 import com.example.lista.cumparaturi.app.stats.StatsManager;
@@ -183,6 +185,7 @@ public class MainActivity extends ActionBarActivity implements IPreferintaEventH
     public void onRefresh() {
         recycleAdapter.notifyDataSetChanged();
         StatsManager.instance().checkForOffers(this);
+        StatsManager.instance().savePricesToCache(this);
     }
 
     private class AsyncDataLoad extends AsyncTask<Comparator<Preferinta>, String, Void>{

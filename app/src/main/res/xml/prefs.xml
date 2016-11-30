@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:key="personalizare"
+        android:title="Personalizare"
+        >
+    <EditTextPreference
+        android:key="userName"
+        android:summary="Introduceti numele dumneavoastra"
+        android:title="Nume si prenume"
+        android:inputType="textPersonName"
+        />
+
+    <EditTextPreference
+        android:key="buget"
+        android:summary="Introduceti limita de buget"
+        android:title="Buget"
+        android:inputType="numberDecimal"
+        />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="deSistem"
+        android:title="Generale">
+
+        <CheckBoxPreference
+            android:key="gps"
+            android:summary="Activeaza/dezactiveaza folosirea GPS-ului"
+            android:title="GPS activat"
+            android:defaultValue="true"
+            />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
