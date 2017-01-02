@@ -85,5 +85,6 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="descriere">Descriere:</string>
+    <string name="userNamePref">userName</string>
 
 </resources>

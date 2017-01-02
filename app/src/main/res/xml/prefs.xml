@@ -6,7 +6,7 @@
         android:title="Personalizare"
         >
     <EditTextPreference
-        android:key="userName"
+        android:key="@string/userNamePref"
         android:summary="Introduceti numele dumneavoastra"
         android:title="Nume si prenume"
         android:inputType="textPersonName"

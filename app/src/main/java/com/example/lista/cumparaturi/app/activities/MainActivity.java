@@ -1,17 +1,17 @@
 package com.example.lista.cumparaturi.app.activities;
 
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
-import android.app.TaskStackBuilder;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -67,13 +67,6 @@ public class MainActivity extends ActionBarActivity implements IPreferintaEventH
         Drawable d=r.getDrawable(R.color.royalBlue);
         ab.setBackgroundDrawable(d);
 
-        menu = (FloatingActionsMenu)findViewById(R.id.floatingMenu);
-        FloatingActionButton adaugaBtn = (FloatingActionButton)findViewById(R.id.floating_add_btn);
-        FloatingActionButton time = (FloatingActionButton)findViewById(R.id.sortTime);
-        FloatingActionButton time2 = (FloatingActionButton)findViewById(R.id.sortTime2);
-
-        adaugaBtn.setOnClickListener(deployActivity(menu, AdaugaProdusNou.class));
-
         EventManager.manager().addListener(this);
         EventManager.manager().addRefreshListener(this);
 
@@ -83,6 +76,14 @@ public class MainActivity extends ActionBarActivity implements IPreferintaEventH
         recycleAdapter = new ListaPreferintaRecyclerAdapter(this);
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(recycleAdapter);
+        menu = (FloatingActionsMenu)findViewById(R.id.floatingMenu);
+        FloatingActionButton adaugaBtn = (FloatingActionButton)findViewById(R.id.floating_add_btn);
+        FloatingActionButton time = (FloatingActionButton)findViewById(R.id.sortTime);
+        FloatingActionButton time2 = (FloatingActionButton)findViewById(R.id.sortTime2);
+
+        startOffersJob();
+
+        adaugaBtn.setOnClickListener(deployActivity(menu, AdaugaProdusNou.class));
 
         time.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,8 +110,27 @@ public class MainActivity extends ActionBarActivity implements IPreferintaEventH
                 recycleAdapter.notifyDataSetChanged();
             }
         });
+    }
 
-        startOffersJob();
+    @Override
+    public void onResume(){
+        super.onResume();
+        this.setTitleFromSettings();
+    }
+
+    private void setTitleFromSettings(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final String userPref = getResources().getString(R.string.userNamePref);
+        if(preferences.contains(userPref)){
+            String name = preferences.getString(userPref, "a");
+            String[] split = name.split(" ");
+            if(name.length() > 2 && split.length > 1){
+                setTitle("Salut, " + split[0].trim() + "!");
+            }
+            else{
+                setTitle(R.string.app_name);
+            }
+        }
     }
 
     private void startOffersJob(){
